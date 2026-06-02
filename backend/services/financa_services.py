@@ -7,8 +7,7 @@ from datetime import date
 
 def cria_financa(dados: FinancaCreate):
 
-    dados.tipo = dados.tipo.lower()
-    dados.categoria = dados.categoria.lower()
+    
 
     if dados.valor <= 0:
         raise HTTPException(
@@ -54,9 +53,11 @@ def lista_financas(
         query = db.query(Financa)
     
         if tipo:
+            tipo = tipo.lower()
             query = query.filter(Financa.tipo == tipo)
 
         if categoria:
+            categoria = categoria.lower()
             query = query.filter(
                 Financa.categoria == categoria
             )
@@ -69,6 +70,12 @@ def lista_financas(
             query = query.filter(
                 Financa.data <= data_fim
             )
+
+        if data_inicio > data_fim:
+            raise HTTPException(
+            status_code=400,
+            detail="Data inicial maior que data final"
+        )
 
         return query.all()
 

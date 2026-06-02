@@ -1,20 +1,3 @@
-# Python
-__pycache__/
-*.pyc
-
-# Virtual Env
-venv/
-.venv/
-
-# SQLite
-*.db
-
-# VSCode
-.vscode/
-
-# PyCharm
-.idea/
-
 # Logs
 logs
 *.log
