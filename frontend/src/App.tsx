@@ -4,7 +4,7 @@ import Header from "./layouts/Header";
 
 function App() {
   return (
-    <div className="h-screen bg-[#F8FAFC]">
+    <div className="bg-[#F8FAFC]">
       <BrowserRouter>
         <Header />
         <Routes>
