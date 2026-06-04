@@ -5,7 +5,7 @@ function Header() {
     <div className="sticky top-0 z-50 flex justify-between items-center bg-[#CAE9FF] h-16">
       <div>
         <Link to={"/"} className="cursor-pointer">
-          <h1 className="text-[#1B4965] mx-2 text-xl font-semibold">
+          <h1 className="text-[#1B4965] mx-2 text-xl font-bold">
             Sistema Financeiro
           </h1>
         </Link>

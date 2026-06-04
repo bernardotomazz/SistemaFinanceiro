@@ -9,7 +9,7 @@ type MovimentacaoProps = {
 function Movimentacao(props: MovimentacaoProps) {
   const compara = props.tipo == "receita";
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 border-b border-[#CBD5E1] mt-2 p-4 items-center hover:bg-[#CAE9FF] transition-colors rounded-md cursor-pointer hover:shadow-sm">
+    <div className="grid grid-cols-1 md:grid-cols-4 border-b border-[#CBD5E1] p-4 items-center hover:bg-[#CAE9FF] transition-colors rounded-md cursor-pointer hover:shadow-sm">
       <p className="text-[#374151] font-light">
         {props.data.toLocaleDateString("pt-BR")}
       </p>
