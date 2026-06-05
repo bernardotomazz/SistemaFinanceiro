@@ -2,10 +2,47 @@
 
 API REST desenvolvida com FastAPI para gerenciamento de receitas e despesas pessoais.
 
-## Funcionalidades
+## Tecnologias Utilizadas
 
-- Cadastro de receitas e despesas
-- Listagem de finanças
+### Backend
+
+- Python
+
+- FastAPI
+
+- SQLAlchemy
+
+- SQLite
+
+### Frontend
+
+- React
+
+- TypeScript
+
+- Tailwind CSS
+
+## Estrutura do Projeto
+
+```text
+SistemaFinanceiro/
+├── backend/
+│   ├── routers/
+│   ├── services/
+│   ├── schemas/
+│   ├── database/
+│   └── main.py
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── layouts/
+│   └── package.json
+```
+
+## Próximas Melhorias
+
 - Atualização de registros
 - Exclusão de registros
 - Filtros por:
@@ -19,35 +56,15 @@ API REST desenvolvida com FastAPI para gerenciamento de receitas e despesas pess
   - Saldo atual
   - Quantidade de receitas
   - Quantidade de despesas
-
-## Tecnologias Utilizadas
-
-- Python
-- FastAPI
-- SQLAlchemy
-- SQLite
-- Pydantic
-
-## Estrutura do Projeto
-
-```text
-app/
-├── database/
-│   ├── connection.py
-│   └── models.py
-├── routes/
-│   └── financa_routes.py
-├── schemas/
-│   └── financa.py
-├── services/
-│   └── financa_services.py
-└── main.py
-```
-
-## Próximas Melhorias
-
-- Autenticação com JWT
-- PostgreSQL
-- Frontend com React
-- Dashboard com gráficos
 - Paginação
+- Relatórios avançados
+- Gráficos
+- Exportação para Excel/PDF
+
+## GitHub:
+
+https://github.com/bernardotomazz
+
+## LinkedIn:
+
+https://www.linkedin.com/in/bernardo-tomaz-santos/

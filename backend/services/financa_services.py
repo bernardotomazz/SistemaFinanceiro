@@ -7,7 +7,11 @@ from datetime import date
 
 def cria_financa(dados: FinancaCreate):
 
-    
+    if dados.tipo:
+        dados.tipo = dados.tipo.lower()
+
+    if dados.categoria:
+        dados.categoria = dados.categoria.lower()
 
     if dados.valor <= 0:
         raise HTTPException(
@@ -48,10 +52,9 @@ def lista_financas(
     data_fim: date | None = None
 ):
     db = SessionLocal()
-
+    
     try:
         query = db.query(Financa)
-    
         if tipo:
             tipo = tipo.lower()
             query = query.filter(Financa.tipo == tipo)
@@ -71,11 +74,12 @@ def lista_financas(
                 Financa.data <= data_fim
             )
 
-        if data_inicio > data_fim:
-            raise HTTPException(
-            status_code=400,
-            detail="Data inicial maior que data final"
-        )
+        if data_inicio and data_fim:
+            if data_inicio > data_fim:
+                raise HTTPException(
+                status_code=400,
+                detail="Data inicial maior que data final"
+            )
 
         return query.all()
 
@@ -129,7 +133,7 @@ def deleta_financa(id: int):
     finally:
         db.close()
 
-def atualiza_financa(id, dados: FinancaUpdate):
+def atualiza_financa(id : int, dados: FinancaUpdate):
     db = SessionLocal()
 
     try:
@@ -143,30 +147,30 @@ def atualiza_financa(id, dados: FinancaUpdate):
             raise HTTPException(status_code=404, detail="Finança não encontrada")
 
         # atualizações parciais e validações
-        if getattr(dados, "valor", None) is not None:
+        if dados.valor is not None:
             if dados.valor <= 0:
                 raise HTTPException(status_code=400, detail="Valor inválido")
             financa.valor = dados.valor
 
-        if getattr(dados, "tipo", None) is not None:
+        if dados.tipo is not None:
             tipo = dados.tipo.lower()
             if tipo not in ["receita", "despesa"]:
                 raise HTTPException(status_code=400, detail="Tipo inválido")
             financa.tipo = tipo
 
-        if getattr(dados, "categoria", None) is not None:
+        if dados.categoria is not None:
             financa.categoria = dados.categoria.lower()
 
-        if getattr(dados, "descricao", None) is not None:
+        if dados.descricao is not None:
             financa.descricao = dados.descricao
 
-        if getattr(dados, "data", None) is not None:
+        if dados.data is not None:
             financa.data = dados.data
-
+        
         db.commit()
         db.refresh(financa)
         return financa
-    
+
     except Exception:
         db.rollback()
         raise
@@ -204,15 +208,32 @@ def resumo_financas():
             .scalar()
         ) or 0
 
+        saldo = receita - despesa
+        
         return {
             "receita": receita,
             "despesa": despesa,
-            "saldo": receita - despesa,
+            "saldo": saldo,
             "quantidade_receita": receita_quant,
             "quantidade_despesa": despesa_quant
         }
             
         
+    
+    finally:
+        db.close()
+
+def ultimas_movimentacoes():
+
+    db = SessionLocal()
+
+    try:
+        lista = (db.query(Financa)
+            .order_by(Financa.data.desc(), Financa.id.desc())
+            .limit(5)
+            .all())
+        
+        return lista
     
     finally:
         db.close()

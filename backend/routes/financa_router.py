@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from schemas.financa import FinancaCreate, FinancaResponse, FinancaUpdate
-from services.financa_services import lista_financas, cria_financa, deleta_financa, resumo_financas, atualiza_financa
+from services.financa_services import lista_financas, busca_financa, cria_financa, deleta_financa, resumo_financas, atualiza_financa, ultimas_movimentacoes
 from datetime import date
 
 router = APIRouter()
@@ -22,18 +22,18 @@ def get_financas(
     ):
     return lista_financas(tipo, categoria, data_inicio, data_fim)
 
-
-#Recebe a lista de finanças de um tipo
-@router.get("/financas/{tipo}", response_model= list[FinancaResponse])
-def get_financa(tipo: str):
-    return lista_financas(tipo)
-
+@router.get("financas/{id}", response_model=FinancaResponse)
+def get_financas(id: int):
+    return busca_financa(id)
 
 #Recebe o a soma e o total de receitas e despesas e o saldo.
 @router.get("/dashboard")
 def get_resumo():
     return resumo_financas()
 
+@router.get("/dashboard/ultimas-movimentacoes", response_model=list[FinancaResponse])
+def get_ultimas_movimentacoes():
+    return ultimas_movimentacoes()
 
 #DELETAR
 #Exclui uma finança pelo id

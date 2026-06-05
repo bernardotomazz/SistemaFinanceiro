@@ -4,47 +4,74 @@ import Movimentacao from "../components/Movimentacao";
 import Categoria from "../components/Categoria";
 import { FaLinkedinIn } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
+import Despesa from "../components/Despesa";
+import { useEffect, useState } from "react";
+
+type Financa = {
+  id: number;
+  descricao: string;
+  valor: number;
+  categoria: string;
+  tipo: string;
+  data: string;
+};
+
+type Resumo = {
+  receita: number;
+  despesa: number;
+  saldo: number;
+  quantidade_receita: number;
+  quantidade_despesa: number;
+};
 
 function Dashboard() {
-  const movimentacoes = [
-    {
-      data: new Date("2026-05-30"),
-      descricao: "Salário",
-      categoria: "Trabalho",
-      valor: 5000,
-      tipo: "receita",
-    },
-    {
-      data: new Date("2026-05-29"),
-      descricao: "Mercado",
-      categoria: "Alimentação",
-      valor: 280.5,
-      tipo: "despesa",
-    },
-    {
-      data: new Date("2026-05-28"),
-      descricao: "Freelance",
-      categoria: "Projetos",
-      valor: 850,
-      tipo: "receita",
-    },
-    {
-      data: new Date("2026-05-27"),
-      descricao: "Netflix",
-      categoria: "Assinaturas",
-      valor: 39.9,
-      tipo: "despesa",
-    },
-    {
-      data: new Date("2026-05-26"),
-      descricao: "Combustível",
-      categoria: "Transporte",
-      valor: 150,
-      tipo: "despesa",
-    },
-  ];
+  const [movimentacoes, setMovimentacoes] = useState<Financa[]>([]);
+  const [resumo, setResumo] = useState<Resumo>({
+    receita: 0,
+    despesa: 0,
+    saldo: 0,
+    quantidade_receita: 0,
+    quantidade_despesa: 0,
+  });
+  //const [categorias, setCategorias] = useState<Financa[]>([]);
+  //const [despesas, setDespesas] = useState<Financa[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function carregarDashboard() {
+      try {
+        const [movimentacoes, resumo /*, categorias, despesas*/] =
+          await Promise.all([
+            fetch("http://localhost:8000/dashboard/ultimas-movimentacoes"),
+            fetch("http://localhost:8000/dashboard"),
+            //fetch("http://localhost:8000/dashboard/gastos-categoria"),
+            //fetch("http://localhost:8000/dashboard/maiores-despesas"),
+          ]);
+        if (!movimentacoes.ok || !resumo.ok) {
+          throw new Error("Erro ao carregar dashboard");
+        }
+        setMovimentacoes(await movimentacoes.json());
+        setResumo(await resumo.json());
+        //setCategorias(await categorias.json());
+        //setDespesas(await despesas.json());
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    carregarDashboard();
+  }, []);
+
   return (
     <div className="flex flex-col  mt-8 gap-8">
+      <div className="mx-16 xl:mx-25 flex justify-between">
+        <h1 className="font-bold text-4xl">Dashboard</h1>
+        <button className="bg-[#CAE9FF] font-semibold p-2 text-[#1B4965] rounded-lg cursor-pointer hover:bg-[#9ed1f5ff] transition-colors duration-200">
+          Adicionar Finança
+        </button>
+      </div>
       <div className="grid grid-cols-1 mx-16 xl:mx-25 lg:grid-cols-3 gap-4">
         <Link to={"/financas"} className="cursor-pointer hover:shadow-sm">
           <DashboardCard
@@ -81,74 +108,88 @@ function Dashboard() {
           <p className="text-sm font-semibold text-[#374151]">
             ÚLTIMAS MOVIMENTAÇÕES
           </p>
-          {movimentacoes.map((movimentacao, index) => (
-            <Movimentacao
-              key={index}
-              data={movimentacao.data}
-              descricao={movimentacao.descricao}
-              categoria={movimentacao.categoria}
-              valor={movimentacao.valor}
-              tipo={movimentacao.tipo}
-            />
-          ))}
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="w-8 h-8 border-4 border-[#CAE9FF] border-t-[#1B4965] rounded-full animate-spin"></div>
+            </div>
+          ) : movimentacoes.length === 0 ? (
+            <p>Nenhuma movimentação encontrada.</p>
+          ) : (
+            movimentacoes.map((movimentacao) => (
+              <Movimentacao
+                key={movimentacao.id}
+                data={new Date(movimentacao.data)}
+                descricao={movimentacao.descricao}
+                categoria={movimentacao.categoria}
+                valor={movimentacao.valor}
+                tipo={movimentacao.tipo}
+              />
+            ))
+          )}
         </div>
         <div className="bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] col-span-1 p-4 flex flex-col justify-start rounded-xl gap-2">
           <p className="text-sm font-semibold text-[#374151] ml-2">
             SALDO DO MÊS
           </p>
-          <p className="text-xl font-bold ml-2">MAIO/26</p>
-          <div className="flex justify-between items-center ml-2 mt-2">
-            <p>Receitas:</p>
-            <p>R$ 5.000</p>
-          </div>
-          <div className="flex justify-between items-center ml-2 mt-2">
-            <p>Despesas:</p>
-            <p>R$ 2.000</p>
-          </div>
-          <div className="mt-4 border-b border-[#CBD5E1] border-dashed"></div>
-          <div className="flex justify-between items-center ml-2 mt-2">
-            <p>Resultado:</p>
-            <p className="text-green-600 text-2xl font-bold">R$ 3.000</p>
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="w-8 h-8 border-4 border-[#CAE9FF] border-t-[#1B4965] rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <>
+              <p className="text-xl font-bold ml-2">MAIO/26</p>
+              <div className="flex justify-between items-center ml-2 mt-2">
+                <p>Receitas:</p>
+
+                <p>
+                  {resumo.receita.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </p>
+              </div>
+              <div className="flex justify-between items-center ml-2 mt-2">
+                <p>Despesas:</p>
+
+                <p>
+                  {resumo.despesa.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </p>
+              </div>
+              <div className="mt-4 border-b border-[#CBD5E1] border-dashed"></div>
+              <div className="flex justify-between items-center ml-2 mt-2">
+                <p>Resultado:</p>
+                <p className="text-green-600 text-2xl font-bold">
+                  {resumo.saldo.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-6 mx-16 xl:mx-25 gap-4">
-        <div className="bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] p-4 flex flex-col justify-start rounded-xl gap-2 lg:col-span-3">
+        <div className="bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] p-4 flex flex-col  rounded-xl gap-2 lg:col-span-3">
           <p className="text-sm font-semibold text-[#374151] ml-2">
             GASTOS POR CATEGORIA
           </p>
-          <Categoria nome="Alimentação" valor={50.0} percentual={80} />
-          <Categoria nome="Teste" valor={28.0} percentual={20} />
+          <div className="">
+            <Categoria nome="Alimentação" valor={50.0} percentual={80} />
+            <Categoria nome="Teste" valor={28.0} percentual={20} />
+          </div>
         </div>
         <div className="bg-[#F8FAFC] shadow-sm border border-[#E2E8F0] p-4 flex flex-col justify-start rounded-xl gap-2 lg:col-span-3">
           <p className="text-sm font-semibold text-[#374151] ml-2">
             MAIORES DESPESAS
           </p>
           <div className="mt-2"></div>
-          <div className="border border-transparent rounded-xl transition-colors duration-100 flex flex-row justify-between hover:border-1 hover:border-[#1f77adff] items-center">
-            {" "}
-            <div className=" rounded-sm flex flex-col gap-2 p-2">
-              <p className="mx-6 text-sm text-[#374151]">PRINCIPAL</p>
-              <p className="mx-6 text-xl font-semibold ">Notebook</p>
-            </div>
-            <p className="font-bold mx-6">R$ 500,00</p>
-          </div>
-          <div className="border border-transparent rounded-xl transition-colors duration-100 flex flex-row justify-between hover:border-1 hover:border-[#1f77adff] items-center">
-            {" "}
-            <div className=" rounded-sm flex flex-col gap-2 p-2">
-              <p className="mx-6 text-sm text-[#374151]">PRINCIPAL</p>
-              <p className="mx-6 text-xl font-semibold ">Notebook</p>
-            </div>
-            <p className="font-bold mx-6">R$ 500,00</p>
-          </div>
-          <div className="border border-transparent rounded-xl transition-colors duration-100 flex flex-row justify-between hover:border-1 hover:border-[#1f77adff] items-center">
-            {" "}
-            <div className=" rounded-sm flex flex-col gap-2 p-2">
-              <p className="mx-6 text-sm text-[#374151]">PRINCIPAL</p>
-              <p className="mx-6 text-xl font-semibold ">Notebook</p>
-            </div>
-            <p className="font-bold mx-6">R$ 500,00</p>
-          </div>
+          <Despesa descricao="Notebook" categoria="TECNOLOGIA" valor={800.25} />
+          <Despesa descricao="Notebook" categoria="TECNOLOGIA" valor={800.25} />
+          <Despesa descricao="Notebook" categoria="TECNOLOGIA" valor={800.25} />
         </div>
       </div>
       <div className="mt-10 w-full bg-[#CAE9FF] flex flex-col gap-2 items-center justify-center p-8">
