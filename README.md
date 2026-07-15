@@ -40,6 +40,9 @@ SistemaFinanceiro/
 │   │   └── layouts/
 │   └── package.json
 ```
+## Status
+
+🚧 Projeto em desenvolvimento.
 
 ## Próximas Melhorias
 
